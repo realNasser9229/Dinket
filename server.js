@@ -5,43 +5,42 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
 
-// Serve static files
+// Initialize Socket.io with CORS allowed for Render
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Store users: { socketId: "Username" }
 const users = {};
 
 io.on('connection', (socket) => {
-    console.log('New connection:', socket.id);
-
-    // 1. Handle User Join
+    // When a user joins
     socket.on('join', (username) => {
         users[socket.id] = username;
-        // Broadcast to others that someone joined
-        socket.broadcast.emit('system message', `${username} has joined Dinket`);
+        // Notify others
+        socket.broadcast.emit('system message', `${username} joined the lounge`);
     });
 
-    // 2. Handle Chat Messages
+    // When a message is sent
     socket.on('chat message', (msg) => {
-        const username = users[socket.id] || 'Anonymous';
-        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        // Send object with text, user, and time
-        io.emit('chat message', {
-            user: username,
+        const payload = {
+            user: users[socket.id] || 'Guest',
             text: msg,
-            time: timestamp,
-            id: socket.id // Send ID so client knows if it's their own message
-        });
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            id: socket.id
+        };
+        // Send to EVERYONE
+        io.emit('chat message', payload);
     });
 
-    // 3. Handle Disconnect
     socket.on('disconnect', () => {
-        const username = users[socket.id];
-        if (username) {
-            io.emit('system message', `${username} left the chat`);
+        if (users[socket.id]) {
+            io.emit('system message', `${users[socket.id]} left Dinket`);
             delete users[socket.id];
         }
     });
@@ -49,5 +48,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Dinket Server running on port ${PORT}`);
+    console.log(`Dinket is live on port ${PORT}`);
 });
