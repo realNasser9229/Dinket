@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dinket | Chat</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h1>Welcome to Dinket</h1>
+            <p>Enter your name to join</p>
+            <form id="login-form">
+                <input type="text" id="username-input" placeholder="Your Name" maxlength="15" required autocomplete="off">
+                <button type="submit">Join</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <header>
+            <div class="logo">Dinket</div>
+            <div class="status-indicator">● Live</div>
+        </header>
+        
+        <div id="chat-window">
+            <ul id="messages"></ul>
+        </div>
+        
+        <form id="chat-form">
+            <input id="message-input" autocomplete="off" placeholder="Type a message..." />
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
